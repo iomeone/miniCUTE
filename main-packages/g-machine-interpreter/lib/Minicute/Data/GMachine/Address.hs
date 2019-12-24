@@ -11,14 +11,15 @@ module Minicute.Data.GMachine.Address
   , increaseAddress
   ) where
 
-import Data.Data
+import Data.Data ( Data, Typeable )
 import Data.Text.Prettyprint.Doc ( Pretty(..) )
-import GHC.Generics
+import GHC.Generics ( Generic )
 
 import qualified Data.Text.Prettyprint.Doc as PP
 
 newtype Address
-  = Address Integer
+  = Address
+    { getAddress :: Integer }
   deriving ( Generic
            , Typeable
            , Data
@@ -31,12 +32,16 @@ newtype Address
 -- Constructor for 'Address'
 address :: Integer -> Address
 address = Address
+{-# INLINE address #-}
 
 minimumAddress :: Address
-minimumAddress = Address 0
+minimumAddress = address 0
+{-# INLINE minimumAddress #-}
 
 increaseAddress :: Address -> Address
-increaseAddress (Address addr) = Address (addr + 1)
+increaseAddress = Address . (+ 1) . getAddress
+{-# INLINE increaseAddress #-}
 
 instance Pretty Address where
-  pretty (Address addr) = PP.fuse PP.Shallow $ "&" PP.<> pretty addr
+  pretty (Address addr) = PP.fuse PP.Shallow $ "&" <> pretty addr
+  {-# INLINABLE pretty #-}

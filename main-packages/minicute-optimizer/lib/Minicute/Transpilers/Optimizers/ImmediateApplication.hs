@@ -21,7 +21,9 @@ import Minicute.Data.Minicute.Program
 -- |
 -- An optimizer to remove immediate applications in a whole program.
 immediateApplicationMainMC :: MainProgram 'Simple 'MC -> MainProgram 'Simple 'MC
-immediateApplicationMainMC = _Wrapped . each . _supercombinatorBody %~ immediateApplicationMainEMC
+immediateApplicationMainMC
+  = _Wrapped . each . _supercombinatorBody %~ immediateApplicationMainEMC
+{-# INLINABLE immediateApplicationMainMC #-}
 
 -- |
 -- An optimizer to remove immediate applications in an expression.
@@ -30,8 +32,10 @@ immediateApplicationMainEMC = transformOf uniplate go
   where
     go :: MainExpression 'Simple 'MC -> MainExpression 'Simple 'MC
     go (EApplication _ (ELambda _ (v : args') expr) e2)
-      | not (null args') = ELambda () args' expr'
-      | otherwise = expr'
+      = case args' of
+          _ : _ -> ELambda () args' expr'
+          _ -> expr'
       where
         expr' = ELet () NonRecursive [LetDefinition (v, e2)] expr
     go e = e
+{-# INLINABLE immediateApplicationMainEMC #-}

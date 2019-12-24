@@ -11,8 +11,8 @@ module Minicute.Data.GMachine.Node
   , isValueNode
   ) where
 
-import Data.Data
-import GHC.Generics
+import Data.Data ( Data, Typeable )
+import GHC.Generics ( Generic )
 import Minicute.Data.GMachine.Address
 import Minicute.Data.GMachine.Instruction
 
@@ -36,3 +36,4 @@ isValueNode :: Node -> Bool
 isValueNode (NInteger _) = True
 isValueNode (NStructure _ _) = True
 isValueNode _ = False
+{-# INLINABLE isValueNode #-}

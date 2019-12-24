@@ -26,10 +26,11 @@ qqMiniMainMC :: QuasiQuoter
 qqMiniMainMC
   = QuasiQuoter
     { quoteExp = qqMiniMainExpMC
-    , quotePat = const . fail $ "qqMiniMainExpMC cannot be used as a pattern"
-    , quoteType = const . fail $ "qqMiniMainExpMC cannot be used as a type"
-    , quoteDec = const . fail $ "qqMiniMainExpMC cannot be used as a declaration"
+    , quotePat = const $ fail "qqMiniMainExpMC cannot be used as a pattern"
+    , quoteType = const $ fail "qqMiniMainExpMC cannot be used as a type"
+    , quoteDec = const $ fail "qqMiniMainExpMC cannot be used as a declaration"
     }
+{-# INLINABLE qqMiniMainMC #-}
 
 -- |
 -- parse quoted string as a 'MainProgramLLMC'.
@@ -37,14 +38,23 @@ qqMiniMainLLMC :: QuasiQuoter
 qqMiniMainLLMC
   = QuasiQuoter
     { quoteExp = qqMiniMainExpLLMC
-    , quotePat = const . fail $ "qqMiniMainExpLLMC cannot be used as a pattern"
-    , quoteType = const . fail $ "qqMiniMainExpLLMC cannot be used as a type"
-    , quoteDec = const . fail $ "qqMiniMainExpLLMC cannot be used as a declaration"
+    , quotePat = const $ fail "qqMiniMainExpLLMC cannot be used as a pattern"
+    , quoteType = const $ fail "qqMiniMainExpLLMC cannot be used as a type"
+    , quoteDec = const $ fail "qqMiniMainExpLLMC cannot be used as a declaration"
     }
+{-# INLINABLE qqMiniMainLLMC #-}
 
 
 qqMiniMainExpMC :: String -> Q Exp
-qqMiniMainExpMC = lift . either (error . errorBundlePretty) id . parse mainProgramMC "" . normalizeCode
+qqMiniMainExpMC
+  = either (fail . errorBundlePretty) lift
+    . parse mainProgramMC ""
+    . normalizeCode
+{-# INLINABLE qqMiniMainExpMC #-}
 
 qqMiniMainExpLLMC :: String -> Q Exp
-qqMiniMainExpLLMC = lift . either (error . errorBundlePretty) id . parse mainProgramLLMC "" . normalizeCode
+qqMiniMainExpLLMC
+  = either (fail . errorBundlePretty) lift
+    . parse mainProgramLLMC ""
+    . normalizeCode
+{-# INLINABLE qqMiniMainExpLLMC #-}

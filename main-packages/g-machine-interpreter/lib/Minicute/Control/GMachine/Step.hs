@@ -20,13 +20,16 @@ import Prelude hiding ( fail )
 import Control.Monad.Fail
 import Control.Monad.State ( MonadState(..), StateT, runStateT )
 import Control.Monad.Trans ( MonadTrans(..) )
-import Data.Data
-import GHC.Generics
+import Data.Data ( Typeable )
+import GHC.Generics ( Generic )
 import Minicute.Data.GMachine.State
 
 type GMachineStepMonad = GMachineStepMonadT IO
 
-newtype GMachineStepMonadT m a = GMachineStepMonadT (StateT GMachineState m a)
+newtype GMachineStepMonadT m a
+  = GMachineStepMonadT
+    { runGMachineStepMonadT :: StateT GMachineState m a
+    }
   deriving ( Generic
            , Typeable
            , Functor
@@ -39,7 +42,9 @@ newtype GMachineStepMonadT m a = GMachineStepMonadT (StateT GMachineState m a)
 deriving instance (Monad m) => MonadState GMachineState (GMachineStepMonadT m)
 
 runGMachineStepT :: GMachineStepMonadT m a -> GMachineState -> m (a, GMachineState)
-runGMachineStepT (GMachineStepMonadT st) = runStateT st
+runGMachineStepT = runStateT . runGMachineStepMonadT
+{-# INLINE runGMachineStepT #-}
 
 execGMachineStepT :: (Monad m) => GMachineStepMonadT m a -> GMachineState -> m GMachineState
 execGMachineStepT = (fmap snd .) . runGMachineStepT
+{-# INLINE execGMachineStepT #-}

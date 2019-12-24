@@ -35,9 +35,9 @@ import Control.Lens.TH
 import Control.Lens.Tuple
 import Control.Lens.Type
 import Control.Lens.Wrapped
-import Data.Data
+import Data.Data ( Data, Typeable )
 import Data.Text.Prettyprint.Doc.Minicute
-import GHC.Generics
+import GHC.Generics ( Generic )
 import Language.Haskell.TH.Syntax
 import Minicute.Data.Minicute.Expression
 
@@ -65,17 +65,10 @@ deriving instance (Show a, Show (Expression t l a)) => Show (Supercombinator t l
 
 instance (PrettyMC a, PrettyMC (Expression t l a)) => PrettyMC (Supercombinator t l a) where
   prettyMC _ (Supercombinator (scId, argBinders, expr))
-    = PP.hcat
-      [ prettyMC0 scId
-      , if null argBinders
-        then PP.emptyDoc
-        else PP.space
-      , PP.hsep . fmap prettyMC0 $ argBinders
-      , PP.space
-      , PP.equals
-      , PP.space
-      , prettyMC0 expr
-      ]
+    = PP.hsep
+      $ [prettyMC0 scId]
+      <> (prettyMC0 <$> argBinders)
+      <> [PP.equals, prettyMC0 expr]
 
 -- |
 -- A supercombinator of 'MainExpression'
@@ -97,7 +90,8 @@ deriving instance (Ord a, Ord (Expression t l a)) => Ord (Program t l a)
 deriving instance (Show a, Show (Expression t l a)) => Show (Program t l a)
 
 instance (PrettyMC a, PrettyMC (Expression t l a)) => PrettyMC (Program t l a) where
-  prettyMC _ (Program scs) = PP.vcat . PP.punctuate PP.semi . fmap prettyMC0 $ scs
+  prettyMC _ (Program scs)
+    = PP.vcat . PP.punctuate PP.semi $ prettyMC0 <$> scs
 
 -- |
 -- A program of 'MainExpression'
@@ -110,19 +104,19 @@ makeWrapped ''Supercombinator
 -- 'Lens' to extract the binder of 'Supercombinator'
 _supercombinatorBinder :: Lens' (Supercombinator t l a) Identifier
 _supercombinatorBinder = _Wrapped . _1
-{-# INLINEABLE _supercombinatorBinder #-}
+{-# INLINABLE _supercombinatorBinder #-}
 
 -- |
 -- 'Lens' to extract the list of arguments of 'Supercombinator'
 _supercombinatorArguments :: Lens' (Supercombinator t l a) [a]
 _supercombinatorArguments = _Wrapped . _2
-{-# INLINEABLE _supercombinatorArguments #-}
+{-# INLINABLE _supercombinatorArguments #-}
 
 -- |
 -- 'Lens' to extract the body expression of 'Supercombinator'
 _supercombinatorBody :: Lens (Supercombinator t1 l1 a) (Supercombinator t2 l2 a) (Expression t1 l1 a) (Expression t2 l2 a)
 _supercombinatorBody = _Wrapped . _3
-{-# INLINEABLE _supercombinatorBody #-}
+{-# INLINABLE _supercombinatorBody #-}
 
 
 makeWrapped ''Program

@@ -38,7 +38,8 @@ library:
   # exposed:
   # exposed-modules:
   # generated-exposed-modules:
-  # other-modules:
+  other-modules:
+    - Data.Text.Prettyprint.Doc.Minicute.Internal.TH
   # generated-other-modules:
   # reexported-modules:
   # signatures:
@@ -48,7 +49,6 @@ library:
     - lib
   ghc-options:
     - -Wall
-    - -Wstar-is-type
   dependencies:
     - prettyprinter >= 1.2 && < 2
     - template-haskell >= 2.14 && < 3

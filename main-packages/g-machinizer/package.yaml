@@ -39,7 +39,7 @@ library:
   # exposed-modules:
   # generated-exposed-modules:
   other-modules:
-    - Minicute.Internal.Transpilers.GMachine
+    - Minicute.Transpilers.GMachine.Internal
   # generated-other-modules:
   # reexported-modules:
   # signatures:
@@ -49,7 +49,6 @@ library:
     - lib
   ghc-options:
     - -Wall
-    - -Wstar-is-type
   dependencies:
     - containers >= 0.6 && < 0.7
     - lens >= 4.17 && < 5

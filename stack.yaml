@@ -55,6 +55,11 @@ packages:
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 extra-deps: []
 
+ghc-options:
+  "$locals": >-
+    -XMonadFailDesugaring -Wnoncanonical-monadfail-instances -Wmissing-monadfail-instances
+    -Wstar-is-type
+
 # Override default flag values for local packages and extra-deps
 flags: {}
 
@@ -83,5 +88,4 @@ require-stack-version: ">= 2.1"
 build:
   test-arguments:
     additional-args:
-      - "--color"
-      - always
+      - "--color=always"
