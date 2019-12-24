@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE CPP, MultiParamTypeClasses #-}</span><span>
+</span><a name="line-2"></a><span class="hs-comment">{- |
+Definitions of 'Uniplate' and 'Biplate' classes, along with all the standard operations.
+
+Import this module directly only if you are defining new Uniplate operations, otherwise
+import one of &quot;Data.Generics.Uniplate.Direct&quot;, &quot;Data.Generics.Uniplate.Typeable&quot; or
+&quot;Data.Generics.Uniplate.Data&quot;.
+
+Most functions have an example of a possible use for the function.
+To illustate, I have used the @Expr@ type as below:
+
+&gt; data Expr = Val Int
+&gt;           | Neg Expr
+&gt;           | Add Expr Expr
+-}</span><span>
+</span><a name="line-16"></a><span>
+</span><a name="line-17"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Data.Generics.Uniplate.Operations</span><span> </span><span class="hs-keyword">where</span><span>
+</span><a name="line-18"></a><span>
+</span><a name="line-19"></a><span class="hs-cpp">#include &quot;Internal/OperationsInc.hs&quot;
+</span></pre></body></html>

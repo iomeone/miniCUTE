@@ -1,0 +1,521 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DeriveDataTypeable #-}</span><span>
+</span><a name="line-2"></a><span class="hs-pragma">{-# LANGUAGE DeriveGeneric #-}</span><span>
+</span><a name="line-3"></a><span class="hs-pragma">{-# LANGUAGE DeriveLift #-}</span><span>
+</span><a name="line-4"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-5"></a><span class="hs-comment">-- Copyright: (c) 2018-present Junyoung Clare Jang</span><span>
+</span><a name="line-6"></a><span class="hs-comment">-- License: BSD 3-Clause</span><span>
+</span><a name="line-7"></a><span class="hs-comment">--</span><span>
+</span><a name="line-8"></a><span class="hs-comment">-- Instructions and other helper types for G-Machine</span><span>
+</span><a name="line-9"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Minicute.Data.GMachine.Instruction</span><span>
+</span><a name="line-10"></a><span>  </span><span class="hs-special">(</span><span> </span><span class="hs-comment">-- * G-Machine Architecture</span><span>
+</span><a name="line-11"></a><span>
+</span><a name="line-12"></a><span>    </span><span class="hs-comment">-- ** Abstract Structure</span><span>
+</span><a name="line-13"></a><span>    </span><span class="hs-comment">-- $abstractStructure</span><span>
+</span><a name="line-14"></a><span>
+</span><a name="line-15"></a><span>    </span><span class="hs-comment">-- ** Operational Semantics</span><span>
+</span><a name="line-16"></a><span>    </span><span class="hs-comment">-- $operationalSemantics</span><span>
+</span><a name="line-17"></a><span>
+</span><a name="line-18"></a><span>    </span><span class="hs-comment">-- * Types</span><span>
+</span><a name="line-19"></a><span>    </span><a href="Minicute.Data.GMachine.Instruction.html#GMachineProgram"><span class="hs-identifier hs-type">GMachineProgram</span></a><span>
+</span><a name="line-20"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Minicute.Data.GMachine.Instruction.html#GMachineSupercombinator"><span class="hs-identifier hs-type">GMachineSupercombinator</span></a><span>
+</span><a name="line-21"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Minicute.Data.GMachine.Instruction.html#GMachineExpression"><span class="hs-identifier hs-type">GMachineExpression</span></a><span>
+</span><a name="line-22"></a><span>
+</span><a name="line-23"></a><span>    </span><span class="hs-comment">-- ** Instructions</span><span>
+</span><a name="line-24"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Minicute.Data.GMachine.Instruction.html#Instruction"><span class="hs-identifier hs-type">Instruction</span></a><span class="hs-special">(</span><span> </span><span class="hs-glyph">..</span><span> </span><span class="hs-special">)</span><span>
+</span><a name="line-25"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Minicute.Data.GMachine.Instruction.html#MatchTable"><span class="hs-identifier hs-type">MatchTable</span></a><span class="hs-special">(</span><span> </span><span class="hs-glyph">..</span><span> </span><span class="hs-special">)</span><span>
+</span><a name="line-26"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Minicute.Data.GMachine.Instruction.html#MatchEntry"><span class="hs-identifier hs-type">MatchEntry</span></a><span class="hs-special">(</span><span> </span><span class="hs-glyph">..</span><span> </span><span class="hs-special">)</span><span>
+</span><a name="line-27"></a><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><a name="line-28"></a><span>
+</span><a name="line-29"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Data.Data</span><span> </span><span class="hs-special">(</span><span> </span><span class="hs-identifier hs-type">Data</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Typeable</span><span> </span><span class="hs-special">)</span><span>
+</span><a name="line-30"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">GHC.Generics</span><span> </span><span class="hs-special">(</span><span> </span><span class="hs-identifier hs-type">Generic</span><span> </span><span class="hs-special">)</span><span>
+</span><a name="line-31"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Language.Haskell.TH.Syntax</span><span>
+</span><a name="line-32"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Minicute.Data.Common</span><span>
+</span><a name="line-33"></a><span>
+</span><a name="line-34"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-35"></a><span class="hs-comment">-- A G-Machine program.</span><span>
+</span><a name="line-36"></a><span class="hs-keyword">type</span><span> </span><a name="GMachineProgram"><a href="Minicute.Data.GMachine.Instruction.html#GMachineProgram"><span class="hs-identifier">GMachineProgram</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><a href="Minicute.Data.GMachine.Instruction.html#GMachineSupercombinator"><span class="hs-identifier hs-type">GMachineSupercombinator</span></a><span class="hs-special">]</span><span>
+</span><a name="line-37"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-38"></a><span class="hs-comment">-- A G-Machine top-level definition.</span><span>
+</span><a name="line-39"></a><span class="hs-comment">--</span><span>
+</span><a name="line-40"></a><span class="hs-comment">-- It contains</span><span>
+</span><a name="line-41"></a><span class="hs-comment">--</span><span>
+</span><a name="line-42"></a><span class="hs-comment">-- [@Identifier@] The identifier for the Supercombinator.</span><span>
+</span><a name="line-43"></a><span class="hs-comment">--</span><span>
+</span><a name="line-44"></a><span class="hs-comment">-- [@Int@] The arity of the Supercombinator.</span><span>
+</span><a name="line-45"></a><span class="hs-comment">--</span><span>
+</span><a name="line-46"></a><span class="hs-comment">-- [@GMachineExpression@] The code for the Supercombinator.</span><span>
+</span><a name="line-47"></a><span class="hs-keyword">type</span><span> </span><a name="GMachineSupercombinator"><a href="Minicute.Data.GMachine.Instruction.html#GMachineSupercombinator"><span class="hs-identifier">GMachineSupercombinator</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Identifier</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Int</span><span class="hs-special">,</span><span> </span><a href="Minicute.Data.GMachine.Instruction.html#GMachineExpression"><span class="hs-identifier hs-type">GMachineExpression</span></a><span class="hs-special">)</span><span>
+</span><a name="line-48"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-49"></a><span class="hs-comment">-- A G-Machine expression</span><span>
+</span><a name="line-50"></a><span class="hs-keyword">type</span><span> </span><a name="GMachineExpression"><a href="Minicute.Data.GMachine.Instruction.html#GMachineExpression"><span class="hs-identifier">GMachineExpression</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><a href="Minicute.Data.GMachine.Instruction.html#Instruction"><span class="hs-identifier hs-type">Instruction</span></a><span class="hs-special">]</span><span>
+</span><a name="line-51"></a><span>
+</span><a name="line-52"></a><span class="hs-comment">-- $abstractStructure</span><span>
+</span><a name="line-53"></a><span class="hs-comment">-- This G-Machine is represented by 6-tuple.</span><span>
+</span><a name="line-54"></a><span class="hs-comment">--</span><span>
+</span><a name="line-55"></a><span class="hs-comment">-- \((CurrentCode,\ AddressStack,\ ValueStack,\ NodeHeap,\ GlobalEnvironment)\)</span><span>
+</span><a name="line-56"></a><span class="hs-comment">--</span><span>
+</span><a name="line-57"></a><span class="hs-comment">-- [@CurrentCode@] a list of codes currently executed.</span><span>
+</span><a name="line-58"></a><span class="hs-comment">--</span><span>
+</span><a name="line-59"></a><span class="hs-comment">-- [@AddressStack@] a stack of G-Machine addresses.</span><span>
+</span><a name="line-60"></a><span class="hs-comment">--</span><span>
+</span><a name="line-61"></a><span class="hs-comment">-- [@ValueStack@] a stack of primitive values.</span><span>
+</span><a name="line-62"></a><span class="hs-comment">--</span><span>
+</span><a name="line-63"></a><span class="hs-comment">-- [@EvalDump@] a stack of snapshots of codes, address stacks, and value stacks.</span><span>
+</span><a name="line-64"></a><span class="hs-comment">--</span><span>
+</span><a name="line-65"></a><span class="hs-comment">-- [@NodeHeap@] a heap of G-Machine nodes.</span><span>
+</span><a name="line-66"></a><span class="hs-comment">--</span><span>
+</span><a name="line-67"></a><span class="hs-comment">-- [@GlobalEnvironment@] a map from identifiers to addresses of corresponding nodes.</span><span>
+</span><a name="line-68"></a><span class="hs-comment">--</span><span>
+</span><a name="line-69"></a><span class="hs-comment">-- The following tuple describes the initial state for the machine.</span><span>
+</span><a name="line-70"></a><span class="hs-comment">--</span><span>
+</span><a name="line-71"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-72"></a><span class="hs-comment">--     \begin{align}</span><span>
+</span><a name="line-73"></a><span class="hs-comment">--     &amp; \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-74"></a><span class="hs-comment">--       ( &amp; [\text{IMakeGlobal}\ \unicode{x201C}main\unicode{x201D}, \text{IEval}], &amp; [], &amp; [], &amp; [], &amp; initialHeap, &amp; initialGlobal &amp; )</span><span>
+</span><a name="line-75"></a><span class="hs-comment">--     \end{array}\\</span><span>
+</span><a name="line-76"></a><span class="hs-comment">--     &amp; \text{(when $initialHeap$ is a heap including all NGlobals for the supercombinators in a program)}\\</span><span>
+</span><a name="line-77"></a><span class="hs-comment">--     &amp; \text{(when $initialGlobal$ is a global including all supercombinators in a program)}</span><span>
+</span><a name="line-78"></a><span class="hs-comment">--     \end{align}</span><span>
+</span><a name="line-79"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-80"></a><span class="hs-comment">--</span><span>
+</span><a name="line-81"></a><span class="hs-comment">-- __TODO: make this G-Machine be parallel__</span><span>
+</span><a name="line-82"></a><span>
+</span><a name="line-83"></a><span class="hs-comment">-- $operationalSemantics</span><span>
+</span><a name="line-84"></a><span class="hs-comment">-- Any unspecified cases mean erratic state.</span><span>
+</span><a name="line-85"></a><span class="hs-comment">--</span><span>
+</span><a name="line-86"></a><span class="hs-comment">-- === Basic Node Creating Operations</span><span>
+</span><a name="line-87"></a><span class="hs-comment">-- - __IMakeInteger__</span><span>
+</span><a name="line-88"></a><span class="hs-comment">--</span><span>
+</span><a name="line-89"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-90"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-91"></a><span class="hs-comment">--       ( &amp; \text{IMakeInteger}\ n : codes, &amp;        addrs, &amp; values, &amp; dump, &amp; heap, &amp;                           global &amp; )\\</span><span>
+</span><a name="line-92"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-93"></a><span class="hs-comment">--       ( &amp;                          codes, &amp; addr : addrs, &amp; values, &amp; dump, &amp; heap[addr: \text{NInteger}\ n], &amp; global &amp; )</span><span>
+</span><a name="line-94"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-95"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-96"></a><span class="hs-comment">--</span><span>
+</span><a name="line-97"></a><span class="hs-comment">-- - __IMakeConstructor__</span><span>
+</span><a name="line-98"></a><span class="hs-comment">--</span><span>
+</span><a name="line-99"></a><span class="hs-comment">--</span><span>
+</span><a name="line-100"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-101"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-102"></a><span class="hs-comment">--       ( &amp; \text{IMakeConstructor}\ t\ n : codes, &amp;        addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                  global &amp; )\\</span><span>
+</span><a name="line-103"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-104"></a><span class="hs-comment">--       ( &amp;                                 codes, &amp; addr : addrs, &amp; values, &amp; dump, &amp; heap[addr: \text{NConstructor}\ t\ n], &amp; global &amp; )</span><span>
+</span><a name="line-105"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-106"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-107"></a><span class="hs-comment">--</span><span>
+</span><a name="line-108"></a><span class="hs-comment">-- - __IMakeStructure__</span><span>
+</span><a name="line-109"></a><span class="hs-comment">--</span><span>
+</span><a name="line-110"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-111"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-112"></a><span class="hs-comment">--       ( &amp; \text{IMakeStructure}\ t\ n : codes, &amp; addr_0 : addr_1 : ... : addr_{n - 1} : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                                                  global &amp; )\\</span><span>
+</span><a name="line-113"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-114"></a><span class="hs-comment">--       ( &amp;                               codes, &amp;                                 addr : addrs, &amp; values, &amp; dump, &amp; heap[addr: \text{NStructure}\ t\ [addr_{n - 1}, ..., addr_1, addr_0]], &amp; global &amp; )</span><span>
+</span><a name="line-115"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-116"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-117"></a><span class="hs-comment">--</span><span>
+</span><a name="line-118"></a><span class="hs-comment">-- - __IMakeApplication__</span><span>
+</span><a name="line-119"></a><span class="hs-comment">--</span><span>
+</span><a name="line-120"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-121"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-122"></a><span class="hs-comment">--       ( &amp; \text{IMakeApplication} : codes, &amp; addr_0 : addr_1 : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                            global &amp; )\\</span><span>
+</span><a name="line-123"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-124"></a><span class="hs-comment">--       ( &amp;                           codes, &amp;            addr : addrs, &amp; values, &amp; dump, &amp; heap[addr: \text{NApplication}\ addr_1\ addr_0], &amp; global &amp; )</span><span>
+</span><a name="line-125"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-126"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-127"></a><span class="hs-comment">--</span><span>
+</span><a name="line-128"></a><span class="hs-comment">-- - __IMakeGlobal__</span><span>
+</span><a name="line-129"></a><span class="hs-comment">--</span><span>
+</span><a name="line-130"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-131"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-132"></a><span class="hs-comment">--       ( &amp; \text{IMakeGlobal}\ id : codes, &amp;        addrs, &amp; values, &amp; dump, &amp; heap, &amp; global[id: addr] &amp; )\\</span><span>
+</span><a name="line-133"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-134"></a><span class="hs-comment">--       ( &amp;                          codes, &amp; addr : addrs, &amp; values, &amp; dump, &amp; heap, &amp; global[id: addr] &amp; )</span><span>
+</span><a name="line-135"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-136"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-137"></a><span class="hs-comment">--</span><span>
+</span><a name="line-138"></a><span class="hs-comment">-- - __IMakePlaceholders__</span><span>
+</span><a name="line-139"></a><span class="hs-comment">--</span><span>
+</span><a name="line-140"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-141"></a><span class="hs-comment">--     \begin{align}</span><span>
+</span><a name="line-142"></a><span class="hs-comment">--     &amp; \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-143"></a><span class="hs-comment">--       ( &amp; \text{IMakePlaceholders}\ n : codes, &amp;                                  addrs, &amp; values, &amp; dump, &amp; heap, &amp;  global &amp; )\\</span><span>
+</span><a name="line-144"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-145"></a><span class="hs-comment">--       ( &amp;                               codes, &amp; addr_0 : addr_1 : ... : addr_n : addrs, &amp; values, &amp; dump, &amp; heap', &amp; global &amp; )</span><span>
+</span><a name="line-146"></a><span class="hs-comment">--     \end{array}\\</span><span>
+</span><a name="line-147"></a><span class="hs-comment">--     &amp; heap' = heap[addr_0: \text{NEmpty}, addr_1: \text{NEmpty}, ..., addr_n: \text{NEmpty}]</span><span>
+</span><a name="line-148"></a><span class="hs-comment">--     \end{align}</span><span>
+</span><a name="line-149"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-150"></a><span class="hs-comment">--</span><span>
+</span><a name="line-151"></a><span class="hs-comment">--     Do we need to add @NEmpty@ or just use @NIndirect nullAddr@?</span><span>
+</span><a name="line-152"></a><span class="hs-comment">--</span><span>
+</span><a name="line-153"></a><span class="hs-comment">-- === Address Stack Based Operations</span><span>
+</span><a name="line-154"></a><span class="hs-comment">-- - __IPop__</span><span>
+</span><a name="line-155"></a><span class="hs-comment">--</span><span>
+</span><a name="line-156"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-157"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-158"></a><span class="hs-comment">--       ( &amp; \text{IPop}\ n : codes, &amp; addr_0 : addr_1 : ... : addr_{n - 1} : addrs, &amp; values, &amp; dump, &amp; heap, &amp; global &amp; )\\</span><span>
+</span><a name="line-159"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-160"></a><span class="hs-comment">--       ( &amp;                  codes, &amp;                                        addrs, &amp; values, &amp; dump, &amp; heap, &amp; global &amp; )</span><span>
+</span><a name="line-161"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-162"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-163"></a><span class="hs-comment">--</span><span>
+</span><a name="line-164"></a><span class="hs-comment">-- - __IDig__</span><span>
+</span><a name="line-165"></a><span class="hs-comment">--</span><span>
+</span><a name="line-166"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-167"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-168"></a><span class="hs-comment">--       ( &amp; \text{IDig}\ n : codes, &amp; addr_0 : addr_1 : ... : addr_n : addrs, &amp; values, &amp; dump, &amp; heap, &amp; global &amp; )\\</span><span>
+</span><a name="line-169"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-170"></a><span class="hs-comment">--       ( &amp;                  codes, &amp;                         addr_0 : addrs, &amp; values, &amp; dump, &amp; heap, &amp; global &amp; )</span><span>
+</span><a name="line-171"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-172"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-173"></a><span class="hs-comment">--</span><span>
+</span><a name="line-174"></a><span class="hs-comment">-- - __IUpdate__</span><span>
+</span><a name="line-175"></a><span class="hs-comment">--</span><span>
+</span><a name="line-176"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-177"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-178"></a><span class="hs-comment">--       ( &amp; \text{IUpdate}\ n : codes, &amp; addr_0 : addr_1 : ... : addr_n : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                   global &amp; )\\</span><span>
+</span><a name="line-179"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-180"></a><span class="hs-comment">--       ( &amp;                     codes, &amp; addr_0 : addr_1 : ... : addr_n : addrs, &amp; values, &amp; dump, &amp; heap[addr_n: \text{NIndirect}\ addr_0], &amp; global &amp; )</span><span>
+</span><a name="line-181"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-182"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-183"></a><span class="hs-comment">--</span><span>
+</span><a name="line-184"></a><span class="hs-comment">-- - __ICopy__</span><span>
+</span><a name="line-185"></a><span class="hs-comment">--</span><span>
+</span><a name="line-186"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-187"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-188"></a><span class="hs-comment">--       ( &amp; \text{ICopy}\ n : codes, &amp;          addr_0 : addr_1 : ... : addr_n : addrs, &amp; values, &amp; dump, &amp; heap, &amp; global &amp; )\\</span><span>
+</span><a name="line-189"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-190"></a><span class="hs-comment">--       ( &amp;                   codes, &amp; addr_n : addr_0 : addr_1 : ... : addr_n : addrs, &amp; values, &amp; dump, &amp; heap, &amp; global &amp; )</span><span>
+</span><a name="line-191"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-192"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-193"></a><span class="hs-comment">--</span><span>
+</span><a name="line-194"></a><span class="hs-comment">-- === Value Stack Based Operations</span><span>
+</span><a name="line-195"></a><span class="hs-comment">-- - __IPushBasicValue__</span><span>
+</span><a name="line-196"></a><span class="hs-comment">--</span><span>
+</span><a name="line-197"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-198"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-199"></a><span class="hs-comment">--       ( &amp; \text{IPushBasicValue}\ v : codes, &amp; addrs, &amp;     values, &amp; dump, &amp; heap, &amp; global &amp; )\\</span><span>
+</span><a name="line-200"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-201"></a><span class="hs-comment">--       ( &amp;                             codes, &amp; addrs, &amp; v : values, &amp; dump, &amp; heap, &amp; global &amp; )</span><span>
+</span><a name="line-202"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-203"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-204"></a><span class="hs-comment">--</span><span>
+</span><a name="line-205"></a><span class="hs-comment">-- - __IPushExtractedValue__</span><span>
+</span><a name="line-206"></a><span class="hs-comment">--</span><span>
+</span><a name="line-207"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-208"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-209"></a><span class="hs-comment">--       ( &amp; \text{IPushExtractedValue} : codes, &amp; addr : addrs, &amp;     values, &amp; dump, &amp; heap[addr: \text{NInteger}\ v], &amp; global &amp; )\\</span><span>
+</span><a name="line-210"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-211"></a><span class="hs-comment">--       ( &amp;                              codes, &amp;        addrs, &amp; v : values, &amp; dump, &amp; heap, &amp;                           global &amp; )</span><span>
+</span><a name="line-212"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-213"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-214"></a><span class="hs-comment">--</span><span>
+</span><a name="line-215"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-216"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-217"></a><span class="hs-comment">--       ( &amp; \text{IPushExtractedValue} : codes, &amp; addr : addrs, &amp;     values, &amp; dump, &amp; heap[addr: \text{NStructure}\ v\ []], &amp; global &amp; )\\</span><span>
+</span><a name="line-218"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-219"></a><span class="hs-comment">--       ( &amp;                              codes, &amp;        addrs, &amp; v : values, &amp; dump, &amp; heap, &amp;                                 global &amp; )</span><span>
+</span><a name="line-220"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-221"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-222"></a><span class="hs-comment">--</span><span>
+</span><a name="line-223"></a><span class="hs-comment">-- - __IWrapAsInteger__</span><span>
+</span><a name="line-224"></a><span class="hs-comment">--</span><span>
+</span><a name="line-225"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-226"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-227"></a><span class="hs-comment">--       ( &amp; \text{IWrapAsInteger} : codes, &amp;        addrs, &amp; v : values, &amp; dump, &amp; heap, &amp;                           global &amp; )\\</span><span>
+</span><a name="line-228"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-229"></a><span class="hs-comment">--       ( &amp;                         codes, &amp; addr : addrs, &amp;     values, &amp; dump, &amp; heap[addr: \text{NInteger}\ v], &amp; global &amp; )</span><span>
+</span><a name="line-230"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-231"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-232"></a><span class="hs-comment">--</span><span>
+</span><a name="line-233"></a><span class="hs-comment">-- - __IWrapAsStructure__</span><span>
+</span><a name="line-234"></a><span class="hs-comment">--</span><span>
+</span><a name="line-235"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-236"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-237"></a><span class="hs-comment">--       ( &amp; \text{IWrapAsStructure} : codes, &amp;        addrs, &amp; v : values, &amp; dump, &amp; heap, &amp;                                 global &amp; )\\</span><span>
+</span><a name="line-238"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-239"></a><span class="hs-comment">--       ( &amp;                           codes, &amp; addr : addrs, &amp;     values, &amp; dump, &amp; heap[addr: \text{NStructure}\ v\ []], &amp; global &amp; )</span><span>
+</span><a name="line-240"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-241"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-242"></a><span class="hs-comment">--</span><span>
+</span><a name="line-243"></a><span class="hs-comment">-- - __IUpdateAsInteger__</span><span>
+</span><a name="line-244"></a><span class="hs-comment">--</span><span>
+</span><a name="line-245"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-246"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-247"></a><span class="hs-comment">--       ( &amp; \text{IUpdateAsInteger}\ n : codes, &amp; addr_0 : addr_1 : ... : addr_n : addrs, &amp; v : values, &amp; dump, &amp; heap, &amp;                             global &amp; )\\</span><span>
+</span><a name="line-248"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-249"></a><span class="hs-comment">--       ( &amp;                              codes, &amp; addr_0 : addr_1 : ... : addr_n : addrs, &amp;     values, &amp; dump, &amp; heap[addr_n: \text{NInteger}\ v], &amp; global &amp; )</span><span>
+</span><a name="line-250"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-251"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-252"></a><span class="hs-comment">--</span><span>
+</span><a name="line-253"></a><span class="hs-comment">-- - __IUpdateAsStructure__</span><span>
+</span><a name="line-254"></a><span class="hs-comment">--</span><span>
+</span><a name="line-255"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-256"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-257"></a><span class="hs-comment">--       ( &amp; \text{IUpdateAsStructure}\ n : codes, &amp; addr_0 : addr_1 : ... : addr_n : addrs, &amp; v : values, &amp; dump, &amp; heap, &amp;                                   global &amp; )\\</span><span>
+</span><a name="line-258"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-259"></a><span class="hs-comment">--       ( &amp;                                codes, &amp; addr_0 : addr_1 : ... : addr_n : addrs, &amp;     values, &amp; dump, &amp; heap[addr_n: \text{NStructure}\ v\ []], &amp; global &amp; )</span><span>
+</span><a name="line-260"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-261"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-262"></a><span class="hs-comment">--</span><span>
+</span><a name="line-263"></a><span class="hs-comment">-- === Primitive Operations</span><span>
+</span><a name="line-264"></a><span class="hs-comment">-- - __IPrimitive__</span><span>
+</span><a name="line-265"></a><span class="hs-comment">--</span><span>
+</span><a name="line-266"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-267"></a><span class="hs-comment">--     \begin{align}</span><span>
+</span><a name="line-268"></a><span class="hs-comment">--     &amp; \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-269"></a><span class="hs-comment">--       ( &amp; \text{IPrimitive}\ op : codes, &amp; addrs, &amp; v_0 : v_1 : values, &amp; dump, &amp; heap, &amp; global &amp; )\\</span><span>
+</span><a name="line-270"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-271"></a><span class="hs-comment">--       ( &amp;                         codes, &amp; addrs, &amp;        v' : values, &amp; dump, &amp; heap, &amp; global &amp; )</span><span>
+</span><a name="line-272"></a><span class="hs-comment">--     \end{array}\\</span><span>
+</span><a name="line-273"></a><span class="hs-comment">--     &amp; v' = v_0\ R\ v1\\</span><span>
+</span><a name="line-274"></a><span class="hs-comment">--     &amp; \text{(when $op$ represents a binary operation $R$)}</span><span>
+</span><a name="line-275"></a><span class="hs-comment">--     \end{align}</span><span>
+</span><a name="line-276"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-277"></a><span class="hs-comment">--</span><span>
+</span><a name="line-278"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-279"></a><span class="hs-comment">--     \begin{align}</span><span>
+</span><a name="line-280"></a><span class="hs-comment">--     &amp; \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-281"></a><span class="hs-comment">--       ( &amp; \text{IPrimitive}\ op : codes, &amp; addrs, &amp;  v : values, &amp; dump, &amp; heap, &amp; global &amp; )\\</span><span>
+</span><a name="line-282"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-283"></a><span class="hs-comment">--       ( &amp;                         codes, &amp; addrs, &amp; v' : values, &amp; dump, &amp; heap, &amp; global &amp; )</span><span>
+</span><a name="line-284"></a><span class="hs-comment">--     \end{array}\\</span><span>
+</span><a name="line-285"></a><span class="hs-comment">--     &amp; v' = R\ v\\</span><span>
+</span><a name="line-286"></a><span class="hs-comment">--     &amp; \text{(when $op$ represents a unary operation $R$)}</span><span>
+</span><a name="line-287"></a><span class="hs-comment">--     \end{align}</span><span>
+</span><a name="line-288"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-289"></a><span class="hs-comment">--</span><span>
+</span><a name="line-290"></a><span class="hs-comment">-- === Node Inspecting Operations</span><span>
+</span><a name="line-291"></a><span class="hs-comment">-- - __IUnwind__</span><span>
+</span><a name="line-292"></a><span class="hs-comment">--</span><span>
+</span><a name="line-293"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-294"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-295"></a><span class="hs-comment">--       ( &amp; [\text{IUnwind}], &amp;  addr : addrs, &amp;  values, &amp; (codes', addrs', values') : dump, &amp; heap[addr: \text{NInteger}\ n], &amp; global &amp; )\\</span><span>
+</span><a name="line-296"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-297"></a><span class="hs-comment">--       ( &amp;           codes', &amp; addr : addrs', &amp; values', &amp;                             dump, &amp; heap, &amp;                           global &amp; )</span><span>
+</span><a name="line-298"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-299"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-300"></a><span class="hs-comment">--</span><span>
+</span><a name="line-301"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-302"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-303"></a><span class="hs-comment">--       ( &amp; [\text{IUnwind}], &amp;  addr : addrs, &amp;  values, &amp; (codes', addrs', values') : dump, &amp; heap[addr: \text{NStructure}\ t\ fAddrs], &amp; global &amp; )\\</span><span>
+</span><a name="line-304"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-305"></a><span class="hs-comment">--       ( &amp;           codes', &amp; addr : addrs', &amp; values', &amp;                             dump, &amp; heap, &amp;                                     global &amp; )</span><span>
+</span><a name="line-306"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-307"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-308"></a><span class="hs-comment">--</span><span>
+</span><a name="line-309"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-310"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-311"></a><span class="hs-comment">--       ( &amp; [\text{IUnwind}], &amp;          addr : addrs, &amp; values, &amp; dump, &amp; heap[addr: \text{NApplication}\ addr_1\ addr_0], &amp; global &amp; )\\</span><span>
+</span><a name="line-312"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-313"></a><span class="hs-comment">--       ( &amp; [\text{IUnwind}], &amp; addr_1 : addr : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                            global &amp; )</span><span>
+</span><a name="line-314"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-315"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-316"></a><span class="hs-comment">--</span><span>
+</span><a name="line-317"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-318"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-319"></a><span class="hs-comment">--       ( &amp; [\text{IUnwind}], &amp;  addr : addrs, &amp; values, &amp; dump, &amp; heap[addr: \text{NIndirect}\ addr'], &amp; global &amp; )\\</span><span>
+</span><a name="line-320"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-321"></a><span class="hs-comment">--       ( &amp; [\text{IUnwind}], &amp; addr' : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                global &amp; )</span><span>
+</span><a name="line-322"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-323"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-324"></a><span class="hs-comment">--</span><span>
+</span><a name="line-325"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-326"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-327"></a><span class="hs-comment">--       ( &amp;          [\text{IUnwind}], &amp; addr : addrs, &amp; values, &amp; dump, &amp; heap[addr: \text{NConstructor}\ t\ 0], &amp; global &amp; )\\</span><span>
+</span><a name="line-328"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-329"></a><span class="hs-comment">--       ( &amp; \text{constructorCode}\ t, &amp; addr : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                  global &amp; )</span><span>
+</span><a name="line-330"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-331"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-332"></a><span class="hs-comment">--</span><span>
+</span><a name="line-333"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-334"></a><span class="hs-comment">--     \begin{align}</span><span>
+</span><a name="line-335"></a><span class="hs-comment">--     &amp; \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-336"></a><span class="hs-comment">--       ( &amp;                                 [\text{IUnwind}], &amp; addr_0 : addr_1 : ... : addr_n : addrs, &amp; values, &amp; dump, &amp; heap[addr_0: \text{NConstructor}\ t\ n], &amp; global &amp; )\\</span><span>
+</span><a name="line-337"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-338"></a><span class="hs-comment">--       ( &amp; \text{IRearrange}\ n : \text{constructorCode}\ t, &amp;          addr_1 : ... : addr_n : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                    global &amp; )</span><span>
+</span><a name="line-339"></a><span class="hs-comment">--     \end{array}\\</span><span>
+</span><a name="line-340"></a><span class="hs-comment">--     &amp; \text{(when $n &gt; 0$)}</span><span>
+</span><a name="line-341"></a><span class="hs-comment">--     \end{align}</span><span>
+</span><a name="line-342"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-343"></a><span class="hs-comment">--</span><span>
+</span><a name="line-344"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-345"></a><span class="hs-comment">--     \begin{align}</span><span>
+</span><a name="line-346"></a><span class="hs-comment">--     &amp; \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-347"></a><span class="hs-comment">--       ( &amp; [\text{IUnwind}], &amp; [addr_0, addr_1, ..., addr_m], &amp; values, &amp; dump, &amp; heap[addr_0: \text{NConstructor}\ t\ n], &amp; global &amp; )\\</span><span>
+</span><a name="line-348"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-349"></a><span class="hs-comment">--       ( &amp;  [\text{Return}], &amp; [addr_0, addr_1, ..., addr_m], &amp; values, &amp; dump, &amp; heap, &amp;                                    global &amp; )</span><span>
+</span><a name="line-350"></a><span class="hs-comment">--     \end{array}\\</span><span>
+</span><a name="line-351"></a><span class="hs-comment">--     &amp; \text{(when $m &lt; n$)}</span><span>
+</span><a name="line-352"></a><span class="hs-comment">--     \end{align}</span><span>
+</span><a name="line-353"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-354"></a><span class="hs-comment">--</span><span>
+</span><a name="line-355"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-356"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-357"></a><span class="hs-comment">--       ( &amp; [\text{IUnwind}], &amp; addr : addrs, &amp; values, &amp; dump, &amp; heap[addr: \text{NGlobal}\ 0\ codes'], &amp; global &amp; )\\</span><span>
+</span><a name="line-358"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-359"></a><span class="hs-comment">--       ( &amp;           codes', &amp; addr : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                  global &amp; )</span><span>
+</span><a name="line-360"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-361"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-362"></a><span class="hs-comment">--</span><span>
+</span><a name="line-363"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-364"></a><span class="hs-comment">--     \begin{align}</span><span>
+</span><a name="line-365"></a><span class="hs-comment">--     &amp; \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-366"></a><span class="hs-comment">--       ( &amp;              [\text{IUnwind}], &amp; addr_0 : addr_1 : ... : addr_n : addrs, &amp; values, &amp; dump, &amp; heap[addr_0: \text{NGlobal}\ n\ codes'], &amp; global &amp; )\\</span><span>
+</span><a name="line-367"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-368"></a><span class="hs-comment">--       ( &amp; \text{IRearrange}\ n : codes', &amp;          addr_1 : ... : addr_n : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                    global &amp; )</span><span>
+</span><a name="line-369"></a><span class="hs-comment">--     \end{array}\\</span><span>
+</span><a name="line-370"></a><span class="hs-comment">--     &amp; \text{(when $n &gt; 0$)}</span><span>
+</span><a name="line-371"></a><span class="hs-comment">--     \end{align}</span><span>
+</span><a name="line-372"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-373"></a><span class="hs-comment">--</span><span>
+</span><a name="line-374"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-375"></a><span class="hs-comment">--     \begin{align}</span><span>
+</span><a name="line-376"></a><span class="hs-comment">--     &amp; \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-377"></a><span class="hs-comment">--       ( &amp; [\text{IUnwind}], &amp; [addr_0, addr_1, ..., addr_m], &amp; values, &amp; dump, &amp; heap[addr_0: \text{NGlobal}\ t\ codes'], &amp; global &amp; )\\</span><span>
+</span><a name="line-378"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-379"></a><span class="hs-comment">--       ( &amp;  [\text{Return}], &amp; [addr_0, addr_1, ..., addr_m], &amp; values, &amp; dump, &amp; heap, &amp;                                    global &amp; )</span><span>
+</span><a name="line-380"></a><span class="hs-comment">--     \end{array}\\</span><span>
+</span><a name="line-381"></a><span class="hs-comment">--     &amp; \text{(when $m &lt; n$)}</span><span>
+</span><a name="line-382"></a><span class="hs-comment">--     \end{align}</span><span>
+</span><a name="line-383"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-384"></a><span class="hs-comment">--</span><span>
+</span><a name="line-385"></a><span class="hs-comment">-- - __IDestruct__</span><span>
+</span><a name="line-386"></a><span class="hs-comment">--</span><span>
+</span><a name="line-387"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-388"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-389"></a><span class="hs-comment">--       ( &amp; \text{IDestruct}\ n : codes, &amp;                                 addr : addrs, &amp; values, &amp; dump, &amp; heap[addr: \text{NStructure}\ t\ [addr_{n - 1}, ..., addr_1, addr_0]], &amp; global &amp; )\\</span><span>
+</span><a name="line-390"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-391"></a><span class="hs-comment">--       ( &amp;                       codes, &amp; addr_0 : addr_1 : ... : addr_{n - 1} : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                                                  global &amp; )</span><span>
+</span><a name="line-392"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-393"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-394"></a><span class="hs-comment">--</span><span>
+</span><a name="line-395"></a><span class="hs-comment">-- === Dump Related Operations</span><span>
+</span><a name="line-396"></a><span class="hs-comment">--</span><span>
+</span><a name="line-397"></a><span class="hs-comment">-- - __IEval__</span><span>
+</span><a name="line-398"></a><span class="hs-comment">--</span><span>
+</span><a name="line-399"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-400"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-401"></a><span class="hs-comment">--       ( &amp; \text{IEval} : codes, &amp; addr : addrs, &amp; values, &amp;                          dump, &amp; heap, &amp; global &amp; )\\</span><span>
+</span><a name="line-402"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-403"></a><span class="hs-comment">--       ( &amp;     [\text{IUnwind}], &amp;       [addr], &amp;     [], &amp; (codes, addrs, values) : dump, &amp; heap, &amp; global &amp; )</span><span>
+</span><a name="line-404"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-405"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-406"></a><span class="hs-comment">--</span><span>
+</span><a name="line-407"></a><span class="hs-comment">-- - __IReturn__</span><span>
+</span><a name="line-408"></a><span class="hs-comment">--</span><span>
+</span><a name="line-409"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-410"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-411"></a><span class="hs-comment">--       ( &amp; [\text{IReturn}], &amp; [addr_0, addr_1, ..., addr_n], &amp;  values, &amp; (codes', addrs', values') : dump, &amp; heap, &amp; global &amp; )\\</span><span>
+</span><a name="line-412"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-413"></a><span class="hs-comment">--       ( &amp;           codes', &amp;               addr_n : addrs', &amp; values', &amp;                             dump, &amp; heap, &amp; global &amp; )</span><span>
+</span><a name="line-414"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-415"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-416"></a><span class="hs-comment">--</span><span>
+</span><a name="line-417"></a><span class="hs-comment">-- === Match Operations</span><span>
+</span><a name="line-418"></a><span class="hs-comment">--</span><span>
+</span><a name="line-419"></a><span class="hs-comment">-- - __IMatch__</span><span>
+</span><a name="line-420"></a><span class="hs-comment">--</span><span>
+</span><a name="line-421"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-422"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-423"></a><span class="hs-comment">--       ( &amp; \text{IMatch}\ table[t: casecode_t] : codes, &amp; addr : addrs, &amp; values, &amp; dump, &amp; heap[addr: \text{NStructure}\ t\ fAddrs], &amp; global &amp; )\\</span><span>
+</span><a name="line-424"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-425"></a><span class="hs-comment">--       ( &amp;                   casecode_t \diamond codes, &amp; addr : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                     global &amp; )</span><span>
+</span><a name="line-426"></a><span class="hs-comment">--     \end{array}</span><span>
+</span><a name="line-427"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-428"></a><span class="hs-comment">--</span><span>
+</span><a name="line-429"></a><span class="hs-comment">-- === Virtual Operations</span><span>
+</span><a name="line-430"></a><span class="hs-comment">-- Following operations are not real constructors of 'Instruction'.</span><span>
+</span><a name="line-431"></a><span class="hs-comment">-- These exist only for semantic purposes.</span><span>
+</span><a name="line-432"></a><span class="hs-comment">--</span><span>
+</span><a name="line-433"></a><span class="hs-comment">-- - __IRearrange__</span><span>
+</span><a name="line-434"></a><span class="hs-comment">--</span><span>
+</span><a name="line-435"></a><span class="hs-comment">--     \[</span><span>
+</span><a name="line-436"></a><span class="hs-comment">--     \begin{array}{r r r r r l l l}</span><span>
+</span><a name="line-437"></a><span class="hs-comment">--       ( &amp; \text{IRearrange}\ n : codes, &amp;                    addr_0 : addr_1 : ... : addr_{n - 1} : addrs, &amp; values, &amp; dump, &amp; heap[addr_i: \text{NApplication}\ addr'_i\ addr''_i], &amp; global &amp; )\\</span><span>
+</span><a name="line-438"></a><span class="hs-comment">--       \hline</span><span>
+</span><a name="line-439"></a><span class="hs-comment">--       ( &amp;                        codes, &amp; addr''_0 : addr''_1 : ... : addr''_{n - 1} : addr_{n - 1} : addrs, &amp; values, &amp; dump, &amp; heap, &amp;                                               global &amp; )</span><span>
+</span><a name="line-440"></a><span class="hs-comment">--     \end{array}\\</span><span>
+</span><a name="line-441"></a><span class="hs-comment">--     \]</span><span>
+</span><a name="line-442"></a><span>
+</span><a name="line-443"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-444"></a><span class="hs-comment">-- A G-Machine instruction</span><span>
+</span><a name="line-445"></a><span class="hs-keyword">data</span><span> </span><a name="Instruction"><a href="Minicute.Data.GMachine.Instruction.html#Instruction"><span class="hs-identifier">Instruction</span></a></a><span>
+</span><a name="line-446"></a><span>  </span><span class="hs-comment">-- Basic node creating operations</span><span>
+</span><a name="line-447"></a><span>  </span><span class="hs-glyph">=</span><span> </span><a name="IMakeInteger"><a href="Minicute.Data.GMachine.Instruction.html#IMakeInteger"><span class="hs-identifier">IMakeInteger</span></a></a><span> </span><span class="hs-identifier hs-type">Integer</span><span>
+</span><a name="line-448"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IMakeConstructor"><a href="Minicute.Data.GMachine.Instruction.html#IMakeConstructor"><span class="hs-identifier">IMakeConstructor</span></a></a><span> </span><span class="hs-identifier hs-type">Integer</span><span> </span><span class="hs-identifier hs-type">Integer</span><span>
+</span><a name="line-449"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IMakeStructure"><a href="Minicute.Data.GMachine.Instruction.html#IMakeStructure"><span class="hs-identifier">IMakeStructure</span></a></a><span> </span><span class="hs-identifier hs-type">Integer</span><span> </span><span class="hs-identifier hs-type">Integer</span><span>
+</span><a name="line-450"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IMakeApplication"><a href="Minicute.Data.GMachine.Instruction.html#IMakeApplication"><span class="hs-identifier">IMakeApplication</span></a></a><span>
+</span><a name="line-451"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IMakeGlobal"><a href="Minicute.Data.GMachine.Instruction.html#IMakeGlobal"><span class="hs-identifier">IMakeGlobal</span></a></a><span> </span><span class="hs-identifier hs-type">Identifier</span><span>
+</span><a name="line-452"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IMakePlaceholders"><a href="Minicute.Data.GMachine.Instruction.html#IMakePlaceholders"><span class="hs-identifier">IMakePlaceholders</span></a></a><span> </span><span class="hs-identifier hs-type">Int</span><span>
+</span><a name="line-453"></a><span>
+</span><a name="line-454"></a><span>  </span><span class="hs-comment">-- Address Stack based operations</span><span>
+</span><a name="line-455"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IPop"><a href="Minicute.Data.GMachine.Instruction.html#IPop"><span class="hs-identifier">IPop</span></a></a><span> </span><span class="hs-identifier hs-type">Int</span><span>
+</span><a name="line-456"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IDig"><a href="Minicute.Data.GMachine.Instruction.html#IDig"><span class="hs-identifier">IDig</span></a></a><span> </span><span class="hs-identifier hs-type">Int</span><span>
+</span><a name="line-457"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IUpdate"><a href="Minicute.Data.GMachine.Instruction.html#IUpdate"><span class="hs-identifier">IUpdate</span></a></a><span> </span><span class="hs-identifier hs-type">Int</span><span>
+</span><a name="line-458"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="ICopy"><a href="Minicute.Data.GMachine.Instruction.html#ICopy"><span class="hs-identifier">ICopy</span></a></a><span> </span><span class="hs-identifier hs-type">Int</span><span>
+</span><a name="line-459"></a><span>
+</span><a name="line-460"></a><span>  </span><span class="hs-comment">-- Value stack based operations</span><span>
+</span><a name="line-461"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IPushBasicValue"><a href="Minicute.Data.GMachine.Instruction.html#IPushBasicValue"><span class="hs-identifier">IPushBasicValue</span></a></a><span> </span><span class="hs-identifier hs-type">Integer</span><span>
+</span><a name="line-462"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IPushExtractedValue"><a href="Minicute.Data.GMachine.Instruction.html#IPushExtractedValue"><span class="hs-identifier">IPushExtractedValue</span></a></a><span>
+</span><a name="line-463"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IWrapAsInteger"><a href="Minicute.Data.GMachine.Instruction.html#IWrapAsInteger"><span class="hs-identifier">IWrapAsInteger</span></a></a><span>
+</span><a name="line-464"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IWrapAsStructure"><a href="Minicute.Data.GMachine.Instruction.html#IWrapAsStructure"><span class="hs-identifier">IWrapAsStructure</span></a></a><span>
+</span><a name="line-465"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IUpdateAsInteger"><a href="Minicute.Data.GMachine.Instruction.html#IUpdateAsInteger"><span class="hs-identifier">IUpdateAsInteger</span></a></a><span> </span><span class="hs-identifier hs-type">Int</span><span>
+</span><a name="line-466"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IUpdateAsStructure"><a href="Minicute.Data.GMachine.Instruction.html#IUpdateAsStructure"><span class="hs-identifier">IUpdateAsStructure</span></a></a><span> </span><span class="hs-identifier hs-type">Int</span><span>
+</span><a name="line-467"></a><span>
+</span><a name="line-468"></a><span>  </span><span class="hs-comment">-- Primitive operations</span><span>
+</span><a name="line-469"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IPrimitive"><a href="Minicute.Data.GMachine.Instruction.html#IPrimitive"><span class="hs-identifier">IPrimitive</span></a></a><span> </span><span class="hs-identifier hs-type">Primitive</span><span>
+</span><a name="line-470"></a><span>
+</span><a name="line-471"></a><span>  </span><span class="hs-comment">-- Node inspecting operations</span><span>
+</span><a name="line-472"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IUnwind"><a href="Minicute.Data.GMachine.Instruction.html#IUnwind"><span class="hs-identifier">IUnwind</span></a></a><span>
+</span><a name="line-473"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IDestruct"><a href="Minicute.Data.GMachine.Instruction.html#IDestruct"><span class="hs-identifier">IDestruct</span></a></a><span> </span><span class="hs-identifier hs-type">Integer</span><span>
+</span><a name="line-474"></a><span>
+</span><a name="line-475"></a><span>  </span><span class="hs-comment">-- Dump related operations</span><span>
+</span><a name="line-476"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IEval"><a href="Minicute.Data.GMachine.Instruction.html#IEval"><span class="hs-identifier">IEval</span></a></a><span>
+</span><a name="line-477"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IReturn"><a href="Minicute.Data.GMachine.Instruction.html#IReturn"><span class="hs-identifier">IReturn</span></a></a><span>
+</span><a name="line-478"></a><span>
+</span><a name="line-479"></a><span>  </span><span class="hs-comment">-- Match related operations</span><span>
+</span><a name="line-480"></a><span>  </span><span class="hs-glyph">|</span><span> </span><a name="IMatch"><a href="Minicute.Data.GMachine.Instruction.html#IMatch"><span class="hs-identifier">IMatch</span></a></a><span> </span><a href="Minicute.Data.GMachine.Instruction.html#MatchTable"><span class="hs-identifier hs-type">MatchTable</span></a><span>
+</span><a name="line-481"></a><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span> </span><span class="hs-identifier hs-type">Generic</span><span>
+</span><a name="line-482"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Typeable</span><span>
+</span><a name="line-483"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Data</span><span>
+</span><a name="line-484"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Lift</span><span>
+</span><a name="line-485"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Eq</span><span>
+</span><a name="line-486"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Ord</span><span>
+</span><a name="line-487"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Show</span><span>
+</span><a name="line-488"></a><span>           </span><span class="hs-special">)</span><span>
+</span><a name="line-489"></a><span>
+</span><a name="line-490"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-491"></a><span class="hs-comment">-- Table expressing a match expression.</span><span>
+</span><a name="line-492"></a><span class="hs-comment">--</span><span>
+</span><a name="line-493"></a><span class="hs-comment">-- [@[MatchEntry\]@] cases in the match expression.</span><span>
+</span><a name="line-494"></a><span class="hs-keyword">newtype</span><span> </span><a name="MatchTable"><a href="Minicute.Data.GMachine.Instruction.html#MatchTable"><span class="hs-identifier">MatchTable</span></a></a><span>
+</span><a name="line-495"></a><span>  </span><span class="hs-glyph">=</span><span> </span><a name="MatchTable"><a href="Minicute.Data.GMachine.Instruction.html#MatchTable"><span class="hs-identifier">MatchTable</span></a></a><span> </span><span class="hs-special">[</span><a href="Minicute.Data.GMachine.Instruction.html#MatchEntry"><span class="hs-identifier hs-type">MatchEntry</span></a><span class="hs-special">]</span><span>
+</span><a name="line-496"></a><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span> </span><span class="hs-identifier hs-type">Generic</span><span>
+</span><a name="line-497"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Typeable</span><span>
+</span><a name="line-498"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Data</span><span>
+</span><a name="line-499"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Lift</span><span>
+</span><a name="line-500"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Eq</span><span>
+</span><a name="line-501"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Ord</span><span>
+</span><a name="line-502"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Show</span><span>
+</span><a name="line-503"></a><span>           </span><span class="hs-special">)</span><span>
+</span><a name="line-504"></a><span>
+</span><a name="line-505"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-506"></a><span class="hs-comment">-- Entry expressing a @match@ case.</span><span>
+</span><a name="line-507"></a><span class="hs-comment">--</span><span>
+</span><a name="line-508"></a><span class="hs-comment">-- [@Integer@] the tag of the case.</span><span>
+</span><a name="line-509"></a><span class="hs-comment">--</span><span>
+</span><a name="line-510"></a><span class="hs-comment">-- [@GMachineExpression@] the instructions of the case.</span><span>
+</span><a name="line-511"></a><span class="hs-keyword">newtype</span><span> </span><a name="MatchEntry"><a href="Minicute.Data.GMachine.Instruction.html#MatchEntry"><span class="hs-identifier">MatchEntry</span></a></a><span>
+</span><a name="line-512"></a><span>  </span><span class="hs-glyph">=</span><span> </span><a name="MatchEntry"><a href="Minicute.Data.GMachine.Instruction.html#MatchEntry"><span class="hs-identifier">MatchEntry</span></a></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Integer</span><span class="hs-special">,</span><span> </span><a href="Minicute.Data.GMachine.Instruction.html#GMachineExpression"><span class="hs-identifier hs-type">GMachineExpression</span></a><span class="hs-special">)</span><span>
+</span><a name="line-513"></a><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span> </span><span class="hs-identifier hs-type">Generic</span><span>
+</span><a name="line-514"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Typeable</span><span>
+</span><a name="line-515"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Data</span><span>
+</span><a name="line-516"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Lift</span><span>
+</span><a name="line-517"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Eq</span><span>
+</span><a name="line-518"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Ord</span><span>
+</span><a name="line-519"></a><span>           </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Show</span><span>
+</span><a name="line-520"></a><span>           </span><span class="hs-special">)</span><span>
+</span><a name="line-521"></a></pre></body></html>

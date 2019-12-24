@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span>
+</span><a name="line-2"></a><span class="hs-comment">-- | Extra numeric functions - formatting and specialised conversions.</span><span>
+</span><a name="line-3"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Numeric.Extra</span><span class="hs-special">(</span><span>
+</span><a name="line-4"></a><span>    </span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Numeric</span><span class="hs-special">,</span><span>
+</span><a name="line-5"></a><span>    </span><a href="Numeric.Extra.html#showDP"><span class="hs-identifier hs-var">showDP</span></a><span class="hs-special">,</span><span>
+</span><a name="line-6"></a><span>    </span><a href="Numeric.Extra.html#intToDouble"><span class="hs-identifier hs-var">intToDouble</span></a><span class="hs-special">,</span><span> </span><a href="Numeric.Extra.html#intToFloat"><span class="hs-identifier hs-var">intToFloat</span></a><span class="hs-special">,</span><span> </span><a href="Numeric.Extra.html#floatToDouble"><span class="hs-identifier hs-var">floatToDouble</span></a><span class="hs-special">,</span><span> </span><a href="Numeric.Extra.html#doubleToFloat"><span class="hs-identifier hs-var">doubleToFloat</span></a><span>
+</span><a name="line-7"></a><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><a name="line-8"></a><span>
+</span><a name="line-9"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Numeric</span><span>
+</span><a name="line-10"></a><span>
+</span><a name="line-11"></a><span>
+</span><a name="line-12"></a><span class="hs-comment">---------------------------------------------------------------------</span><span>
+</span><a name="line-13"></a><span class="hs-comment">-- Data.String</span><span>
+</span><a name="line-14"></a><span>
+</span><a name="line-15"></a><span class="hs-comment">-- | Show a number to a fixed number of decimal places.</span><span>
+</span><a name="line-16"></a><span class="hs-comment">--</span><span>
+</span><a name="line-17"></a><span class="hs-comment">-- &gt; showDP 4 pi == &quot;3.1416&quot;</span><span>
+</span><a name="line-18"></a><span class="hs-comment">-- &gt; showDP 0 pi == &quot;3&quot;</span><span>
+</span><a name="line-19"></a><span class="hs-comment">-- &gt; showDP 2 3  == &quot;3.00&quot;</span><span>
+</span><a name="line-20"></a><span class="hs-identifier">showDP</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">RealFloat</span><span> </span><a href="#local-6989586621679030393"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-identifier hs-type">Int</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="#local-6989586621679030393"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">String</span><span>
+</span><a name="line-21"></a><a name="showDP"><a href="Numeric.Extra.html#showDP"><span class="hs-identifier">showDP</span></a></a><span> </span><a name="local-6989586621679030394"><a href="#local-6989586621679030394"><span class="hs-identifier">n</span></a></a><span> </span><a name="local-6989586621679030395"><a href="#local-6989586621679030395"><span class="hs-identifier">x</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">showFFloat</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">Just</span><span> </span><a href="#local-6989586621679030394"><span class="hs-identifier hs-var">n</span></a><span class="hs-special">)</span><span> </span><a href="#local-6989586621679030395"><span class="hs-identifier hs-var">x</span></a><span> </span><span class="hs-string">&quot;&quot;</span><span>
+</span><a name="line-22"></a><span>
+</span><a name="line-23"></a><span>
+</span><a name="line-24"></a><span class="hs-comment">---------------------------------------------------------------------</span><span>
+</span><a name="line-25"></a><span class="hs-comment">-- Numeric</span><span>
+</span><a name="line-26"></a><span>
+</span><a name="line-27"></a><span class="hs-comment">-- | Specialised numeric conversion, type restricted version of 'fromIntegral'.</span><span>
+</span><a name="line-28"></a><span class="hs-identifier">intToDouble</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Int</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Double</span><span>
+</span><a name="line-29"></a><a name="intToDouble"><a href="Numeric.Extra.html#intToDouble"><span class="hs-identifier">intToDouble</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">fromIntegral</span><span>
+</span><a name="line-30"></a><span>
+</span><a name="line-31"></a><span class="hs-comment">-- | Specialised numeric conversion, type restricted version of 'fromIntegral'.</span><span>
+</span><a name="line-32"></a><span class="hs-identifier">intToFloat</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Int</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Float</span><span>
+</span><a name="line-33"></a><a name="intToFloat"><a href="Numeric.Extra.html#intToFloat"><span class="hs-identifier">intToFloat</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">fromIntegral</span><span>
+</span><a name="line-34"></a><span>
+</span><a name="line-35"></a><span class="hs-comment">-- | Specialised numeric conversion, type restricted version of 'realToFrac'.</span><span>
+</span><a name="line-36"></a><span class="hs-identifier">floatToDouble</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Float</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Double</span><span>
+</span><a name="line-37"></a><a name="floatToDouble"><a href="Numeric.Extra.html#floatToDouble"><span class="hs-identifier">floatToDouble</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">realToFrac</span><span>
+</span><a name="line-38"></a><span>
+</span><a name="line-39"></a><span class="hs-comment">-- | Specialised numeric conversion, type restricted version of 'realToFrac'.</span><span>
+</span><a name="line-40"></a><span class="hs-identifier">doubleToFloat</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">Double</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Float</span><span>
+</span><a name="line-41"></a><a name="doubleToFloat"><a href="Numeric.Extra.html#doubleToFloat"><span class="hs-identifier">doubleToFloat</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">realToFrac</span><span>
+</span><a name="line-42"></a></pre></body></html>

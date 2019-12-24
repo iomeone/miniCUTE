@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">{-|
+/WARNING: This module represents the old version of the HLint API./
+/It will be deleted in favour of &quot;Language.Haskell.HLint3&quot; in the next major version./
+
+This module provides a library interface to HLint, strongly modelled on the command line interface.
+-}</span><span>
+</span><a name="line-7"></a><span>
+</span><a name="line-8"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Language.Haskell.HLint</span><span class="hs-special">(</span><a href="Language.Haskell.HLint.html#hlint"><span class="hs-identifier hs-var">hlint</span></a><span class="hs-special">,</span><span> </span><a href="Language.Haskell.HLint.html#Suggestion"><span class="hs-identifier hs-type">Suggestion</span></a><span class="hs-special">,</span><span> </span><a href="Language.Haskell.HLint.html#suggestionLocation"><span class="hs-identifier hs-var">suggestionLocation</span></a><span class="hs-special">,</span><span> </span><a href="Language.Haskell.HLint.html#suggestionSeverity"><span class="hs-identifier hs-var">suggestionSeverity</span></a><span class="hs-special">,</span><span> </span><a href="Config.Type.html#Severity"><span class="hs-identifier hs-type">Severity</span></a><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><a name="line-9"></a><span>
+</span><a name="line-10"></a><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><a href="HLint.html"><span class="hs-identifier">HLint</span></a><span>
+</span><a name="line-11"></a><span class="hs-keyword">import</span><span> </span><a href="Config.Type.html"><span class="hs-identifier">Config.Type</span></a><span>
+</span><a name="line-12"></a><span class="hs-keyword">import</span><span> </span><a href="Idea.html"><span class="hs-identifier">Idea</span></a><span>
+</span><a name="line-13"></a><span class="hs-keyword">import</span><span> </span><a href="HSE.All.html"><span class="hs-identifier">HSE.All</span></a><span>
+</span><a name="line-14"></a><span>
+</span><a name="line-15"></a><span>
+</span><a name="line-16"></a><span class="hs-comment">-- | This function takes a list of command line arguments, and returns the given suggestions.</span><span>
+</span><a name="line-17"></a><span class="hs-comment">--   To see a list of arguments type @hlint --help@ at the console.</span><span>
+</span><a name="line-18"></a><span class="hs-comment">--   This function writes to the stdout/stderr streams, unless @--quiet@ is specified.</span><span>
+</span><a name="line-19"></a><span class="hs-comment">--</span><span>
+</span><a name="line-20"></a><span class="hs-comment">--   As an example:</span><span>
+</span><a name="line-21"></a><span class="hs-comment">--</span><span>
+</span><a name="line-22"></a><span class="hs-comment">-- &gt; do hints &lt;- hlint [&quot;src&quot;, &quot;--ignore=Use map&quot;,&quot;--quiet&quot;]</span><span>
+</span><a name="line-23"></a><span class="hs-comment">-- &gt;    when (length hints &gt; 3) $ error &quot;Too many hints!&quot;</span><span>
+</span><a name="line-24"></a><span class="hs-identifier">hlint</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">String</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">IO</span><span> </span><span class="hs-special">[</span><a href="Language.Haskell.HLint.html#Suggestion"><span class="hs-identifier hs-type">Suggestion</span></a><span class="hs-special">]</span><span>
+</span><a name="line-25"></a><a name="hlint"><a href="Language.Haskell.HLint.html#hlint"><span class="hs-identifier">hlint</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">fmap</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">map</span><span> </span><a href="Language.Haskell.HLint.html#Suggestion_"><span class="hs-identifier hs-var">Suggestion_</span></a><span class="hs-special">)</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><a href="HLint.html#hlint"><span class="hs-identifier hs-var">HLint.hlint</span></a><span>
+</span><a name="line-26"></a><span>
+</span><a name="line-27"></a><span>
+</span><a name="line-28"></a><span>
+</span><a name="line-29"></a><span class="hs-comment">-- | A suggestion - the @Show@ instance is of particular use.</span><span>
+</span><a name="line-30"></a><span class="hs-keyword">newtype</span><span> </span><a name="Suggestion"><a href="Language.Haskell.HLint.html#Suggestion"><span class="hs-identifier">Suggestion</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="Suggestion_"><a href="Language.Haskell.HLint.html#Suggestion_"><span class="hs-identifier">Suggestion_</span></a></a><span> </span><span class="hs-special">{</span><a name="fromSuggestion"><a href="Language.Haskell.HLint.html#fromSuggestion"><span class="hs-identifier">fromSuggestion</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><a href="Idea.html#Idea"><span class="hs-identifier hs-type">Idea</span></a><span class="hs-special">}</span><span>
+</span><a name="line-31"></a><span>                     </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Eq</span><span class="hs-special">,</span><span class="hs-identifier hs-type">Ord</span><span class="hs-special">)</span><span>
+</span><a name="line-32"></a><span>
+</span><a name="line-33"></a><span class="hs-keyword">instance</span><span> </span><span class="hs-identifier hs-type">Show</span><span> </span><a href="Language.Haskell.HLint.html#Suggestion"><span class="hs-identifier hs-type">Suggestion</span></a><span> </span><span class="hs-keyword">where</span><span>
+</span><a name="line-34"></a><span>    </span><a name="local-8214565720323791252"><span class="hs-identifier">show</span></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">show</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier">fromSuggestion</span><span>
+</span><a name="line-35"></a><span>
+</span><a name="line-36"></a><span class="hs-comment">-- | From a suggestion, extract the file location it refers to.</span><span>
+</span><a name="line-37"></a><span class="hs-identifier">suggestionLocation</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Language.Haskell.HLint.html#Suggestion"><span class="hs-identifier hs-type">Suggestion</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">SrcLoc</span><span>
+</span><a name="line-38"></a><a name="suggestionLocation"><a href="Language.Haskell.HLint.html#suggestionLocation"><span class="hs-identifier">suggestionLocation</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">getPointLoc</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier">ideaSpan</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier">fromSuggestion</span><span>
+</span><a name="line-39"></a><span>
+</span><a name="line-40"></a><span>
+</span><a name="line-41"></a><span class="hs-comment">-- | From a suggestion, determine how severe it is.</span><span>
+</span><a name="line-42"></a><span class="hs-identifier">suggestionSeverity</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Language.Haskell.HLint.html#Suggestion"><span class="hs-identifier hs-type">Suggestion</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Config.Type.html#Severity"><span class="hs-identifier hs-type">Severity</span></a><span>
+</span><a name="line-43"></a><a name="suggestionSeverity"><a href="Language.Haskell.HLint.html#suggestionSeverity"><span class="hs-identifier">suggestionSeverity</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier">ideaSeverity</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier">fromSuggestion</span><span>
+</span><a name="line-44"></a></pre></body></html>

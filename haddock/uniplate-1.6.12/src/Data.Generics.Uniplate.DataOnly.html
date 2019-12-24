@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables, ExistentialQuantification, Rank2Types, CPP,
+    MultiParamTypeClasses, FlexibleInstances, UndecidableInstances #-}</span><span>
+</span><a name="line-3"></a><span>
+</span><a name="line-4"></a><span class="hs-comment">{- |
+    This module functions identically to &quot;Data.Generics.Uniplate.Data&quot;, but instead of
+    using the standard 'Uniplate' / 'Biplate' classes defined in
+    &quot;Data.Generics.Uniplate.Operations&quot; it uses a local copy.
+
+    Only use this module if you are using both @Data@ and @Direct@ instances in
+    the same project and they are conflicting.
+-}</span><span>
+</span><a name="line-12"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Data.Generics.Uniplate.DataOnly</span><span class="hs-special">(</span><span>
+</span><a name="line-13"></a><span>    </span><span class="hs-keyword">module</span><span> </span><a href="Data.Generics.Uniplate.Internal.DataOnlyOperations.html"><span class="hs-identifier">Data.Generics.Uniplate.Internal.DataOnlyOperations</span></a><span class="hs-special">,</span><span>
+</span><a name="line-14"></a><span>    </span><a href="Data.Generics.Uniplate.Internal.Data.html#transformBis"><span class="hs-identifier hs-var">transformBis</span></a><span class="hs-special">,</span><span> </span><a href="Data.Generics.Uniplate.Internal.Data.html#Transformer"><span class="hs-identifier hs-type">Transformer</span></a><span class="hs-special">,</span><span> </span><a href="Data.Generics.Uniplate.Internal.Data.html#transformer"><span class="hs-identifier hs-var">transformer</span></a><span>
+</span><a name="line-15"></a><span>    </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><a name="line-16"></a><span>
+</span><a name="line-17"></a><span class="hs-keyword">import</span><span> </span><a href="Data.Generics.Uniplate.Internal.DataOnlyOperations.html"><span class="hs-identifier">Data.Generics.Uniplate.Internal.DataOnlyOperations</span></a><span>
+</span><a name="line-18"></a><span>
+</span><a name="line-19"></a><span class="hs-cpp">#include &quot;Internal/DataInc.hs&quot;
+</span></pre></body></html>

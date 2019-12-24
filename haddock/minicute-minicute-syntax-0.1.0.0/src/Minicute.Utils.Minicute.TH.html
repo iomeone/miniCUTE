@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- |</span><span>
+</span><a name="line-2"></a><span class="hs-comment">-- Copyright: (c) 2018-present Junyoung Clare Jang</span><span>
+</span><a name="line-3"></a><span class="hs-comment">-- License: BSD 3-Clause</span><span>
+</span><a name="line-4"></a><span class="hs-comment">--</span><span>
+</span><a name="line-5"></a><span class="hs-comment">-- Minicute syntax utilities for miniCUTE compiler using TemplateHaskell</span><span>
+</span><a name="line-6"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Minicute.Utils.Minicute.TH</span><span>
+</span><a name="line-7"></a><span>  </span><span class="hs-special">(</span><span> </span><a href="Minicute.Utils.Minicute.TH.html#qqMiniMainMC"><span class="hs-identifier hs-var">qqMiniMainMC</span></a><span>
+</span><a name="line-8"></a><span>  </span><span class="hs-special">,</span><span> </span><a href="Minicute.Utils.Minicute.TH.html#qqMiniMainLLMC"><span class="hs-identifier hs-var">qqMiniMainLLMC</span></a><span>
+</span><a name="line-9"></a><span>
+</span><a name="line-10"></a><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-var">qqRawCode</span><span>
+</span><a name="line-11"></a><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><a name="line-12"></a><span>
+</span><a name="line-13"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Prelude</span><span> </span><span class="hs-keyword">hiding</span><span> </span><span class="hs-special">(</span><span> </span><span class="hs-identifier hs-var">fail</span><span> </span><span class="hs-special">)</span><span>
+</span><a name="line-14"></a><span>
+</span><a name="line-15"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Control.Monad.Fail</span><span>
+</span><a name="line-16"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Language.Haskell.TH</span><span>
+</span><a name="line-17"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Language.Haskell.TH.Quote</span><span>
+</span><a name="line-18"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Language.Haskell.TH.Syntax</span><span>
+</span><a name="line-19"></a><span class="hs-keyword">import</span><span> </span><a href="Minicute.Parser.Minicute.Parser.html"><span class="hs-identifier">Minicute.Parser.Minicute.Parser</span></a><span>
+</span><a name="line-20"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Minicute.Utils.Common.TH</span><span>
+</span><a name="line-21"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Text.Megaparsec</span><span>
+</span><a name="line-22"></a><span>
+</span><a name="line-23"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-24"></a><span class="hs-comment">-- parse quoted string as a 'MainProgramMC'.</span><span>
+</span><a name="line-25"></a><span class="hs-identifier">qqMiniMainMC</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">QuasiQuoter</span><span>
+</span><a name="line-26"></a><a name="qqMiniMainMC"><a href="Minicute.Utils.Minicute.TH.html#qqMiniMainMC"><span class="hs-identifier">qqMiniMainMC</span></a></a><span>
+</span><a name="line-27"></a><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">QuasiQuoter</span><span>
+</span><a name="line-28"></a><span>    </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">quoteExp</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="Minicute.Utils.Minicute.TH.html#qqMiniMainExpMC"><span class="hs-identifier hs-var">qqMiniMainExpMC</span></a><span>
+</span><a name="line-29"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">quotePat</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">const</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">fail</span><span> </span><span class="hs-string">&quot;qqMiniMainExpMC cannot be used as a pattern&quot;</span><span>
+</span><a name="line-30"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">quoteType</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">const</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">fail</span><span> </span><span class="hs-string">&quot;qqMiniMainExpMC cannot be used as a type&quot;</span><span>
+</span><a name="line-31"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">quoteDec</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">const</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">fail</span><span> </span><span class="hs-string">&quot;qqMiniMainExpMC cannot be used as a declaration&quot;</span><span>
+</span><a name="line-32"></a><span>    </span><span class="hs-special">}</span><span>
+</span><a name="line-33"></a><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="hs-pragma">qqMiniMainMC</span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><a name="line-34"></a><span>
+</span><a name="line-35"></a><span class="hs-comment">-- |</span><span>
+</span><a name="line-36"></a><span class="hs-comment">-- parse quoted string as a 'MainProgramLLMC'.</span><span>
+</span><a name="line-37"></a><span class="hs-identifier">qqMiniMainLLMC</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">QuasiQuoter</span><span>
+</span><a name="line-38"></a><a name="qqMiniMainLLMC"><a href="Minicute.Utils.Minicute.TH.html#qqMiniMainLLMC"><span class="hs-identifier">qqMiniMainLLMC</span></a></a><span>
+</span><a name="line-39"></a><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">QuasiQuoter</span><span>
+</span><a name="line-40"></a><span>    </span><span class="hs-special">{</span><span> </span><span class="hs-identifier">quoteExp</span><span> </span><span class="hs-glyph">=</span><span> </span><a href="Minicute.Utils.Minicute.TH.html#qqMiniMainExpLLMC"><span class="hs-identifier hs-var">qqMiniMainExpLLMC</span></a><span>
+</span><a name="line-41"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">quotePat</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">const</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">fail</span><span> </span><span class="hs-string">&quot;qqMiniMainExpLLMC cannot be used as a pattern&quot;</span><span>
+</span><a name="line-42"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">quoteType</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">const</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">fail</span><span> </span><span class="hs-string">&quot;qqMiniMainExpLLMC cannot be used as a type&quot;</span><span>
+</span><a name="line-43"></a><span>    </span><span class="hs-special">,</span><span> </span><span class="hs-identifier">quoteDec</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">const</span><span> </span><span class="hs-operator hs-var">$</span><span> </span><span class="hs-identifier hs-var">fail</span><span> </span><span class="hs-string">&quot;qqMiniMainExpLLMC cannot be used as a declaration&quot;</span><span>
+</span><a name="line-44"></a><span>    </span><span class="hs-special">}</span><span>
+</span><a name="line-45"></a><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="hs-pragma">qqMiniMainLLMC</span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><a name="line-46"></a><span>
+</span><a name="line-47"></a><span>
+</span><a name="line-48"></a><span class="hs-identifier">qqMiniMainExpMC</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">String</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Q</span><span> </span><span class="hs-identifier hs-type">Exp</span><span>
+</span><a name="line-49"></a><a name="qqMiniMainExpMC"><a href="Minicute.Utils.Minicute.TH.html#qqMiniMainExpMC"><span class="hs-identifier">qqMiniMainExpMC</span></a></a><span>
+</span><a name="line-50"></a><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">either</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fail</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">errorBundlePretty</span><span class="hs-special">)</span><span> </span><span class="hs-identifier hs-var">lift</span><span>
+</span><a name="line-51"></a><span>    </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">parse</span><span> </span><a href="Minicute.Parser.Minicute.Parser.html#mainProgramMC"><span class="hs-identifier hs-var">mainProgramMC</span></a><span> </span><span class="hs-string">&quot;&quot;</span><span>
+</span><a name="line-52"></a><span>    </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">normalizeCode</span><span>
+</span><a name="line-53"></a><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="hs-pragma">qqMiniMainExpMC</span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><a name="line-54"></a><span>
+</span><a name="line-55"></a><span class="hs-identifier">qqMiniMainExpLLMC</span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-identifier hs-type">String</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-identifier hs-type">Q</span><span> </span><span class="hs-identifier hs-type">Exp</span><span>
+</span><a name="line-56"></a><a name="qqMiniMainExpLLMC"><a href="Minicute.Utils.Minicute.TH.html#qqMiniMainExpLLMC"><span class="hs-identifier">qqMiniMainExpLLMC</span></a></a><span>
+</span><a name="line-57"></a><span>  </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">either</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-var">fail</span><span> </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">errorBundlePretty</span><span class="hs-special">)</span><span> </span><span class="hs-identifier hs-var">lift</span><span>
+</span><a name="line-58"></a><span>    </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">parse</span><span> </span><a href="Minicute.Parser.Minicute.Parser.html#mainProgramLLMC"><span class="hs-identifier hs-var">mainProgramLLMC</span></a><span> </span><span class="hs-string">&quot;&quot;</span><span>
+</span><a name="line-59"></a><span>    </span><span class="hs-operator hs-var">.</span><span> </span><span class="hs-identifier hs-var">normalizeCode</span><span>
+</span><a name="line-60"></a><span class="hs-pragma">{-# INLINABLE</span><span> </span><span class="hs-pragma">qqMiniMainExpLLMC</span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><a name="line-61"></a></pre></body></html>
